@@ -8,7 +8,7 @@ OpenQA 不在工具进程内调用大模型；Claude Code、CodeBuddy、Cursor �
 
 ## 安装
 
-### 推荐方式（与 OpenSpec 一致）
+### 推荐方式（npm 全局安装）
 
 ```bash
 npm install -g @yanwuzhang/openqa
@@ -28,11 +28,10 @@ pip install openqa-agent
 
 ```bash
 cd your-project
-openqa init                      # 初始化：探测项目类型，生成配置，安装 slash commands 和 skills
-openqa new "验证新手引导奖励逻辑"  # 开始一次 QA change
-openqa continue                  # 状态机自动推进：扫描 → 影响分析 → 测试知识 → 矩阵
-openqa apply                     # 代码 Review + 测试执行 + 证据采集 + 报告
-openqa archive                   # 归档，沉淀经验到 openqa/knowledge/
+openqa init              # 初始化：探测项目类型，生成配置，安装 slash commands 和 skills
+/oqa:run "验证登录流程"   # 开始一次测试任务（AI 自主推进准备，完成后等你确认执行）
+/oqa:apply               # 用户确认后执行：代码 Review + 测试 + 证据采集 + 报告
+/oqa:archive             # 归档，沉淀经验到 openqa/knowledge/
 ```
 
 ---
@@ -41,21 +40,31 @@ openqa archive                   # 归档，沉淀经验到 openqa/knowledge/
 
 | 指令 | 说明 |
 |------|------|
-| `openqa init` | 在当前项目创建 `openqa/`，生成项目测试画像、配置、忽略规则、slash commands 和 Agent Skills |
-| `openqa update` | 刷新 `/oqa:*` 指令和模板，不改变已有产物 |
-| `openqa new <目标>` | 开始一次 QA change（需求、代码修改或缺陷修复） |
-| `openqa continue` | 根据当前状态自动推进：补扫描、影响分析、测试知识、Review 计划、测试矩阵 |
-| `openqa apply` | 代码 Review + 测试矩阵执行 + 证据采集 + 报告生成；支持 `--suite <name>` 直接执行全局套件 |
-| `openqa archive` | 归档已完成 change，晋升稳定知识 |
-| `openqa help` | 输出所有命令和当前项目建议下一步 |
+| `openqa init` | 在当前项目创建 `openqa/`，生成项目测试画像、配置，向 AI 宿主安装 Slash Commands 和 Agent Skills |
+| `openqa update` | 刷新 `/oqa:*` 指令、Skill、schema 和模板，不改变已有产物 |
+| `openqa run <目标>` | 开始一次测试任务（需求/代码修改/缺陷修复），AI 自主推进准备阶段，准备完成后呈现摘要等待用户确认 |
+| `openqa apply` | 用户确认后：代码 Review + 测试矩阵执行 + 证据采集 + 报告生成；支持 `--suite <name>` 直接执行全局套件 |
+| `openqa archive` | 归档已完成 change，晋升稳定脚本到 `test_assets/`，沉淀经验到 `knowledge/` |
+| `openqa help` | 输出所有用户指令和当前项目建议下一步 |
+
+### Slash Commands
+
+`openqa init` 向检测到的 AI 宿主安装以下 Slash Commands：
+
+| Slash Command | 说明 |
+|---|---|
+| `/oqa:run <目标>` | 开始一次测试任务，AI 自主推进准备阶段，完成后等待用户确认执行 |
+| `/oqa:apply` | 用户确认后执行测试，生成报告 |
+| `/oqa:archive` | 归档 change，沉淀可复用知识 |
+| `/oqa:continue` | 手动恢复入口：AI 中断或用户想查看进度时使用；正常流程无需触发 |
 
 ### 策略参数
 
 ```bash
-openqa new "验证新手引导" --test-suite smoke
+openqa run "验证新手引导" --test-suite smoke
 openqa apply --test-suite incremental --gate ci
 openqa apply --scan-scope full --test-suite regression --gate release
-openqa apply --suite smoke                  # 不需要 change 上下文，直接执行全局套件
+openqa apply --suite smoke          # 不需要 change 上下文，直接执行全局套件
 ```
 
 | 参数 | 可选值 | 说明 |
@@ -70,16 +79,42 @@ openqa apply --suite smoke                  # 不需要 change 上下文，直�
 ## 工作流
 
 ```
-openqa new <目标>
+openqa init
     │
     ▼
-openqa continue  ──► 自动推进：snapshot → delta → impact_graph
-    │                           → test_knowledge → review_plan → test_matrix
+openqa run <目标>  ──► AI 自主循环：snapshot → delta → impact_graph
+    │                            → requirements.md → test_knowledge.md
+    │                            → review_plan.md → test_matrix.json
+    │                  ──► 准备完成，呈现摘要，等待用户确认
     ▼
-openqa apply     ──► [1] 新鲜度校验 → [2] 代码 Review → [3] 工具链就绪
+openqa apply       ──► [1] 新鲜度校验 → [2] 代码 Review → [3] 工具链就绪
     │                → [4] 应用就绪 → [5] 前置条件 → [6] 验收执行 → [7] 报告归因
     ▼
-openqa archive   ──► 归档 change，晋升稳定脚本到 test_assets/，沉淀知识
+openqa archive     ──► 归档 change，晋升稳定脚本到 test_assets/，沉淀知识
+```
+
+### 典型用户流程
+
+```bash
+# 1. 项目首次初始化（只做一次）
+openqa init
+
+# 2. 开始一次测试任务（AI 自主推进准备阶段）
+/oqa:run "测试登录流程"
+# → AI 内部自主循环（用户不感知）：
+#     openqa run "测试登录流程"   # 创建 change + 初始扫描
+#     [AI 生成 requirements.md]
+#     openqa _advance             # 确定性产物生成 + 状态更新
+#     [AI 生成 test_knowledge.md + review_plan.md]
+#     openqa _advance             # 生成 test_matrix.json + 状态更新
+# → AI 停下来汇报：
+#     "准备完成：7 个测试用例，1 个 Review 问题需关注，预计 5 分钟。是否执行？"
+
+# 3. 用户确认后执行
+/oqa:apply
+
+# 4. 归档（可选）
+/oqa:archive
 ```
 
 ---
@@ -89,8 +124,6 @@ openqa archive   ──► 归档 change，晋升稳定脚本到 test_assets/，
 ```
 openqa/
   config.yaml          # 项目测试画像：类型、宿主、扫描、运行、自动化、证据、默认策略
-  ignore               # 扫描忽略规则
-  commands/            # /oqa:* slash command 模板（AI 宿主）
   changes/             # 每次 QA change 的工作区
     <change-id>/
       intent.md        # 本次变更目标
@@ -116,6 +149,12 @@ openqa/
   traces/              # 操作日志、时间线、决策记录
   baselines/           # 截图、状态、性能基线
   knowledge/           # 可复用项目知识与经验
+    project_profile.yaml
+    preconditions.yaml
+    test_patterns.yaml
+    review_rules.yaml
+    failure_taxonomy.yaml
+    flaky_rules.yaml
 ```
 
 ---
@@ -137,12 +176,12 @@ openqa/
 
 ```bash
 # 从 OpenSpec change 创建 QA change（读取 proposal/specs/tasks）
-openqa new --from-openspec <change-id>
+openqa run --from-openspec <change-id>
 ```
 
 ```
 OpenSpec: propose → spec → design → tasks → /opsx:apply（实现）
-OpenQA:   new → continue → /oqa:apply（Review + 测试 + 门禁）
+OpenQA:   run → /oqa:apply（Review + 测试 + 门禁）
 OpenSpec: /opsx:archive（OpenQA 门禁通过后）
 ```
 
@@ -154,10 +193,15 @@ OpenQA 默认只读 OpenSpec 产物，不修改；门禁通过后输出可归档
 
 `openqa init` 向检测到的 AI 宿主安装：
 
-- **Slash Commands**（`/oqa:new` / `/oqa:continue` / `/oqa:apply` / `/oqa:archive`）— 对话框触发入口
-- **Agent Skills**（`openqa-new` / `openqa-continue` / `openqa-apply` / `openqa-archive`）— 完整操作手册，含执行步骤、CLI 调用顺序、产物读写和 guardrails
+- **Slash Commands**（`/oqa:run` / `/oqa:apply` / `/oqa:archive` / `/oqa:continue`）— 对话框触发入口
+- **Agent Skills**（`openqa-run` / `openqa-apply` / `openqa-archive`）— 完整操作手册，含执行步骤、CLI 调用顺序、产物读写和 guardrails
 
-支持宿主：**CodeBuddy** / **Cursor** / **Claude Code**
+| AI 宿主 | Slash Commands 目录 | Skill 目录 |
+|---|---|---|
+| CodeBuddy | `.codebuddy/commands/` | `.codebuddy/skills/openqa-*/` |
+| Cursor | `.cursor/rules/` | `.cursor/skills/openqa-*/` |
+| Claude Code | `.claude/commands/` | `.claude/skills/openqa-*/` |
+| Windsurf | `.windsurf/rules/` | `.windsurf/skills/openqa-*/` |
 
 ---
 
@@ -209,7 +253,7 @@ openqa/
   src/
     openqa/          # Python 主包
       cli/           # CLI 入口（main.py / dispatch.py）
-      commands/      # 命令处理器（init / new / continue / apply / archive / update / help）
+      commands/      # 命令处理器（init / run / apply / archive / update / help）
       init/          # 项目探测、config 生成、slash commands、skills 安装
       workspace/     # 工作区布局、change 管理
       scan/          # 扫描器、新鲜度校验、影响分析
@@ -221,15 +265,15 @@ openqa/
       assets/        # 测试资产生命周期（锚点状态机、suite 管理）
       openspec/      # OpenSpec 联动
       governance/    # 治理边界、决策日志
-      log/           # 日志采集策略
-    tests/           # 测试套件（305 个测试）
+      prompts/       # Agent 提示词模板
+    tests/           # 测试套件
   npm/               # npm 包壳（@yanwuzhang/openqa）
     bin/openqa.js    # CLI 入口（透传到 Python）
     scripts/postinstall.js
   scripts/
     rebuild.mjs      # 本地开发重建脚本（跨平台）
   docs/
-    v3/              # 需求文档（REQ_01~14）
+    v3/              # 需求文档（REQ_01~15）
   pyproject.toml     # Python 包配置（openqa-agent）
   package.json       # 根 package.json（pnpm 快捷指令）
 ```
