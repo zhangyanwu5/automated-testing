@@ -1,0 +1,40 @@
+{
+  "name": "@yanwuzhang/openqa",
+  "version": "0.1.0",
+  "description": "OpenQA – lightweight QA automation framework for AI agents",
+  "keywords": [
+    "openqa",
+    "qa",
+    "testing",
+    "cli",
+    "ai",
+    "automation"
+  ],
+  "homepage": "https://github.com/Fission-AI/OpenQA",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fission-AI/OpenQA"
+  },
+  "license": "MIT",
+  "author": "OpenQA Contributors",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "openqa": "./bin/openqa.js"
+  },
+  "files": [
+    "bin",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "test:postinstall": "node scripts/postinstall.js"
+  }
+}

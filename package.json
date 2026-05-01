@@ -1,0 +1,9 @@
+{
+  "name": "openqa-dev",
+  "private": true,
+  "scripts": {
+    "rebuild":      "node scripts/rebuild.mjs",
+    "rebuild:pack": "node scripts/rebuild.mjs --pack",
+    "rebuild:py":   "node scripts/rebuild.mjs --py-only"
+  }
+}

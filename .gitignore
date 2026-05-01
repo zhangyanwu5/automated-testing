@@ -1,0 +1,96 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.manifest
+*.spec
+MANIFEST
+
+# 虚拟环境
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# mypy / pyright / ruff
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyright/
+.ruff_cache/
+
+# ── Node.js ───────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.npm/
+.yarn/
+.pnp.*
+
+# 构建产物
+npm/dist/
+*.tgz
+
+# ── OpenQA 运行时产物 ─────────────────────────────────────────────────────────
+# 工作区运行时目录（不提交进行中的 change）
+openqa/changes/
+# 执行报告
+openqa/reports/
+# 操作痕迹
+openqa/traces/
+# 扫描全量索引（可重新生成）
+openqa/artifacts/full_index.json
+# 侵入策略签名缓存
+openqa/.intrusion_strategy_sig
+
+# ── IDE / 编辑器 ──────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── 系统 ──────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Desktop.ini
+$RECYCLE.BIN/
+
+# ── 临时文件 ──────────────────────────────────────────────────────────────────
+*.tmp
+*.bak
+*.orig
+temp/
+tmp/
