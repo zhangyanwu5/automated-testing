@@ -3,15 +3,15 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "openqa-agent"
+name = "openguard-agent"
 version = "0.1.0"
-description = "OpenQA – lightweight QA automation framework for AI agents"
+description = "OpenGuard – lightweight QA automation framework for AI agents"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-keywords = ["openqa", "qa", "testing", "ai", "automation", "cli"]
+keywords = ["openguard", "qa", "testing", "ai", "automation", "cli"]
 authors = [
-    { name = "OpenQA Contributors" }
+    { name = "OpenGuard Contributors" }
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -32,12 +32,12 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Fission-AI/OpenQA"
-Repository = "https://github.com/Fission-AI/OpenQA"
-Issues = "https://github.com/Fission-AI/OpenQA/issues"
+Homepage = "https://github.com/Fission-AI/OpenGuard"
+Repository = "https://github.com/Fission-AI/OpenGuard"
+Issues = "https://github.com/Fission-AI/OpenGuard/issues"
 
 [project.scripts]
-openqa = "openqa.cli.main:main"
+openguard = "openguard.cli.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -50,3 +50,7 @@ dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
 ]
+unity = [
+    "psutil>=5.9",
+]
+

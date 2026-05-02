@@ -25,17 +25,17 @@
 | `white-box` | 直接通过 RPC / console command / API 设置目标状态，跳过游戏内操作 | 快、稳定、不受 UI 变化影响 | 需要游戏提供调试接口 |
 | `black-box` | 模拟真实玩家操作走完前置流程（点击、等待、交互） | 不需要调试接口，贴近真实 | 慢、容易 flaky、受 UI 变化影响大 |
 
-`openqa/config.yaml` 中通过 `automation.precondition_mode` 声明优先使用哪种模式；两种都支持时优先使用 `white-box`。
+`openguard/config.yaml` 中通过 `automation.precondition_mode` 声明优先使用哪种模式；两种都支持时优先使用 `white-box`。
 
 ---
 
 ## 目录结构
 
 ```text
-openqa/knowledge/
+openguard/knowledge/
   preconditions.yaml          # 已验证前置路径索引（按状态标签索引）
 
-openqa/test_assets/
+openguard/test_assets/
   setup_paths/                # 已验证的前置路径脚本（与测试脚本平级）
     login_server.py
     login_server.meta.yaml    # 锚点：绑定登录相关代码符号和 RPC
@@ -48,10 +48,10 @@ openqa/test_assets/
 `preconditions.yaml` 按状态标签索引，引用 `setup_paths/` 中的脚本：
 
 ```yaml
-# openqa/knowledge/preconditions.yaml
+# openguard/knowledge/preconditions.yaml
 preconditions:
   - tags: [logged_in]
-    setup_path: openqa/test_assets/setup_paths/login_server.py
+    setup_path: openguard/test_assets/setup_paths/login_server.py
     status: verified
     mode: white-box
     last_verified: 2026-05-01
@@ -59,17 +59,17 @@ preconditions:
 
   - tags: [logged_in, map_a]
     setup_path:
-      - openqa/test_assets/setup_paths/login_server.py
-      - openqa/test_assets/setup_paths/change_map_a.py
+      - openguard/test_assets/setup_paths/login_server.py
+      - openguard/test_assets/setup_paths/change_map_a.py
     status: verified
     mode: black-box
     last_verified: 2026-05-01
 
   - tags: [logged_in, map_a, level_gte_10]
     setup_path:
-      - openqa/test_assets/setup_paths/login_server.py
-      - openqa/test_assets/setup_paths/change_map_a.py
-      - openqa/test_assets/setup_paths/set_level.py
+      - openguard/test_assets/setup_paths/login_server.py
+      - openguard/test_assets/setup_paths/change_map_a.py
+      - openguard/test_assets/setup_paths/set_level.py
     status: needs-review
     mode: white-box
     last_verified: 2026-04-10
@@ -80,7 +80,7 @@ preconditions:
 ## 前置路径生命周期
 
 ```text
-openqa new 时：
+openguard new 时：
   → AI 分析 EARS 前置条件 + 代码前置检查，推断所需状态标签
   → 查 preconditions.yaml：
       ├─ 找到匹配标签 → 直接引用，写入 test_matrix.json
@@ -102,13 +102,13 @@ openqa new 时：
 
 | 编号 | 需求 |
 | --- | --- |
-| REQ-15-01 | 前置路径必须存放在 `openqa/test_assets/setup_paths/`，每个路径脚本有对应的 `.meta.yaml` 锚点文件。 |
-| REQ-15-02 | `preconditions.yaml` 必须按状态标签索引已验证的前置路径，供 `openqa new` 时查找复用。 |
+| REQ-15-01 | 前置路径必须存放在 `openguard/test_assets/setup_paths/`，每个路径脚本有对应的 `.meta.yaml` 锚点文件。 |
+| REQ-15-02 | `preconditions.yaml` 必须按状态标签索引已验证的前置路径，供 `openguard new` 时查找复用。 |
 | REQ-15-03 | 前置路径的实现模式（`white-box` / `black-box`）必须在 `preconditions.yaml` 中记录；`white-box` 模式优先。 |
 | REQ-15-04 | 前置路径必须经过至少一次真实执行验证后才能沉淀到 `preconditions.yaml`；AI 生成的候选步骤需要用户或 AI 确认。 |
 | REQ-15-05 | 前置路径的锚点失效（绑定的接口消失或变更）时，状态降为 `needs-review` 或 `stale`，并在 `freshness.json` 中标注；`stale` 状态的前置路径不得参与任何真实执行。 |
 | REQ-15-06 | 矩阵任务必须显式引用前置路径（通过状态标签或路径引用），不得把前置步骤隐式嵌入测试脚本正文，以保证前置路径可独立复用和维护。 |
-| REQ-15-07 | `openqa new` 时必须查询 `preconditions.yaml`，为当前 change 的前置需求匹配已有路径；无匹配时写入 `unknowns.md`，并提示需要补充或建立新的前置路径。 |
+| REQ-15-07 | `openguard new` 时必须查询 `preconditions.yaml`，为当前 change 的前置需求匹配已有路径；无匹配时写入 `unknowns.md`，并提示需要补充或建立新的前置路径。 |
 | REQ-15-08 | 已验证的前置路径在 `preconditions.yaml` 中按状态标签索引，跨 change 直接复用，不重复建立。 |
 
 ---

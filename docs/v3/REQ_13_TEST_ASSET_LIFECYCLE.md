@@ -2,14 +2,14 @@
 
 ## 目标
 
-OpenQA 的测试脚本和测试套件必须有明确的生命周期管理：从 change 工作区生成，到跨 change 稳定复用，再到过期检测与修复。必须避免测试脚本静默跑错、积累腐化脚本、或每次 change 重复生成相同脚本的问题。
+OpenGuard 的测试脚本和测试套件必须有明确的生命周期管理：从 change 工作区生成，到跨 change 稳定复用，再到过期检测与修复。必须避免测试脚本静默跑错、积累腐化脚本、或每次 change 重复生成相同脚本的问题。
 
 ---
 
 ## 目录结构
 
 ```text
-openqa/
+openguard/
   changes/<change-id>/
 
     test_scripts/           # 本次 change 生成的测试脚本草稿
@@ -40,8 +40,8 @@ openqa/
 
 | 维度 | 位置 | 说明 |
 | --- | --- | --- |
-| 变更维度 | `openqa/changes/<id>/test_scripts/` | 因本次 change 生成，生命周期跟随 change。 |
-| 项目维度 | `openqa/test_assets/` / `openqa/suites/` | 跨 change 稳定积累，归档时从 change 晋升。 |
+| 变更维度 | `openguard/changes/<id>/test_scripts/` | 因本次 change 生成，生命周期跟随 change。 |
+| 项目维度 | `openguard/test_assets/` / `openguard/suites/` | 跨 change 稳定积累，归档时从 change 晋升。 |
 
 
 ---
@@ -50,8 +50,8 @@ openqa/
 
 | 编号 | 需求 |
 | --- | --- |
-| REQ-13-01 | 测试脚本必须生成在 `openqa/` 内，不得写入目标项目的源码目录。 |
-| REQ-13-02 | change 工作区内生成的脚本位于 `openqa/changes/<id>/test_scripts/`，作为草稿。 |
+| REQ-13-01 | 测试脚本必须生成在 `openguard/` 内，不得写入目标项目的源码目录。 |
+| REQ-13-02 | change 工作区内生成的脚本位于 `openguard/changes/<id>/test_scripts/`，作为草稿。 |
 
 | REQ-13-03 | 稳定脚本通过 `archive` 晋升到 `test_assets/scripts/`，并建立 `.meta.yaml` 锚点文件。 |
 | REQ-13-04 | `suites/` 中的套件定义引用 `test_assets/scripts/` 内的脚本路径，不得直接引用 change 工作区内的草稿。 |
@@ -61,7 +61,7 @@ openqa/
 
 ## 侵入策略
 
-OpenQA 对目标项目的侵入分三档，在 `config.yaml` 中通过 `runtime.intrusion_strategy` 声明。
+OpenGuard 对目标项目的侵入分三档，在 `config.yaml` 中通过 `runtime.intrusion_strategy` 声明。
 
 | 策略 | 含义 | 适用场景 |
 | --- | --- | --- |
@@ -88,7 +88,7 @@ OpenQA 对目标项目的侵入分三档，在 `config.yaml` 中通过 `runtime.
 
 | 编号 | 需求 |
 | --- | --- |
-| REQ-13-10 | OpenQA 必须优先使用目标应用已有的日志输出，采集、过滤、摘要后写入 `events.jsonl`。 |
+| REQ-13-10 | OpenGuard 必须优先使用目标应用已有的日志输出，采集、过滤、摘要后写入 `events.jsonl`。 |
 | REQ-13-11 | 当已有日志不足以支撑特定断言分析时，Agent 应输出日志增强建议（文件/符号/日志级别），不得自动修改目标项目代码。 |
 | REQ-13-12 | debug build 模式的额外日志配置必须与生产配置隔离，测试完成后不需要手动还原（因为主分支未被修改）。 |
 
@@ -163,7 +163,7 @@ verified
 
 | 编号 | 需求 |
 | --- | --- |
-| REQ-13-15 | 每次 `continue` / `apply` / `openqa apply --suite` 前，必须对矩阵引用的脚本执行锚点新鲜度检查。 |
+| REQ-13-15 | 每次 `continue` / `apply` / `openguard apply --suite` 前，必须对矩阵引用的脚本执行锚点新鲜度检查。 |
 | REQ-13-16 | 锚点代码符号哈希变化时，脚本状态更新为 `needs-review`，并在 `freshness.json` 中列出变化详情。 |
 | REQ-13-17 | 绑定的代码符号消失或需求指纹变化时，脚本状态更新为 `stale`，并从当前执行矩阵中移除（标记为 `skipped`，说明原因）。 |
 | REQ-13-18 | 符号完全断裂时，脚本状态更新为 `broken`，从所有套件的可执行列表中移除，必须人工或 Agent 修复。 |
@@ -193,19 +193,19 @@ verified
 
 ## 全局 suite 执行
 
-`openqa apply --suite <name>` 在无 change 上下文时直接执行对应全局套件。
+`openguard apply --suite <name>` 在无 change 上下文时直接执行对应全局套件。
 
 ```bash
-openqa apply --suite smoke
-openqa apply --suite regression
-openqa apply --suite requirement/REQ-LOGIN-001
-openqa apply --suite full --gate release
-openqa apply --suite smoke --review-level off   # 纯执行，不做 Review
+openguard apply --suite smoke
+openguard apply --suite regression
+openguard apply --suite requirement/REQ-LOGIN-001
+openguard apply --suite full --gate release
+openguard apply --suite smoke --review-level off   # 纯执行，不做 Review
 ```
 
 | 编号 | 需求 |
 | --- | --- |
-| REQ-13-24 | `openqa apply --suite <name>` 必须在无 change 上下文时可独立执行对应套件，产出执行报告和证据。 |
+| REQ-13-24 | `openguard apply --suite <name>` 必须在无 change 上下文时可独立执行对应套件，产出执行报告和证据。 |
 | REQ-13-25 | 全局 suite 执行前必须对引用的脚本执行锚点新鲜度检查；`broken` 或 `stale` 脚本不参与执行，结果以 `skipped` 记录。 |
 | REQ-13-26 | 全局 suite 执行报告必须标注套件名、脚本版本、锚点哈希和执行时的代码版本，保证可回溯。 |
 

@@ -1,28 +1,28 @@
 {
-  "name": "@yanwuzhang/openqa",
+  "name": "@yanwuzhang/openguard",
   "version": "0.1.0",
-  "description": "OpenQA – lightweight QA automation framework for AI agents",
+  "description": "OpenGuard – lightweight QA automation framework for AI agents",
   "keywords": [
-    "openqa",
+    "openguard",
     "qa",
     "testing",
     "cli",
     "ai",
     "automation"
   ],
-  "homepage": "https://github.com/Fission-AI/OpenQA",
+  "homepage": "https://github.com/Fission-AI/OpenGuard",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Fission-AI/OpenQA"
+    "url": "https://github.com/Fission-AI/OpenGuard"
   },
   "license": "MIT",
-  "author": "OpenQA Contributors",
+  "author": "OpenGuard Contributors",
   "type": "module",
   "publishConfig": {
     "access": "public"
   },
   "bin": {
-    "openqa": "./bin/openqa.js"
+    "openguard": "./bin/openguard.js"
   },
   "files": [
     "bin",

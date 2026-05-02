@@ -2,7 +2,7 @@
 
 ## 目标
 
-OpenQA 的产物必须同时满足：**Agent 易读、工具可校验、CI 可消费、人可审阅**。不假设 OpenQA 自己管理大模型上下文；上下文组织由 CodeBuddy、Claude Code、Cursor 等宿主负责，OpenQA 只提供清晰、稳定、可引用的文件化产物。
+OpenGuard 的产物必须同时满足：**Agent 易读、工具可校验、CI 可消费、人可审阅**。不假设 OpenGuard 自己管理大模型上下文；上下文组织由 CodeBuddy、Claude Code、Cursor 等宿主负责，OpenGuard 只提供清晰、稳定、可引用的文件化产物。
 
 ## 格式选择原则
 
@@ -21,7 +21,7 @@ OpenQA 的产物必须同时满足：**Agent 易读、工具可校验、CI 可�
 ## 目录需求
 
 ```text
-openqa/
+openguard/
   config.yaml
 
   changes/
@@ -109,27 +109,27 @@ openqa/
 
 | 编号 | 需求 |
 | --- | --- |
-| REQ-02-01 | `openqa/config.yaml` 必须保存项目测试画像，包括项目类型、AI 宿主列表、扫描范围、需求入口、运行方式、自动化控制方式、证据采集、执行策略和默认门禁。 |
-| REQ-02-02 | `openqa/changes/` 必须保存每次 QA change 的工作区，包括 `test_scripts/`（草稿脚本）和 `test_fixtures/`（专用测试数据）子目录。 |
-| REQ-02-03 | `openqa/artifacts/` 必须保存工具生成的索引、delta、影响图、矩阵和 overlay。 |
-| REQ-02-04 | `openqa/reports/` 必须按 `suites/<name>/<run-id>/` 和 `changes/<id>/<run-id>/` 结构保存执行报告；每次执行必须独立存储，不覆盖历史。 |
-| REQ-02-05 | `openqa/baselines/` 必须保存截图、状态、性能等基线资产及 metadata。 |
-| REQ-02-06 | `openqa/knowledge/` 必须保存可复用项目知识与经验。 |
-| REQ-02-07 | `openqa/config.yaml` 中未补齐的运行配置必须显式记录为 incomplete、missing 或 unknowns，不得让后续执行阶段隐式猜测。 |
-| REQ-02-08 | `openqa/config.yaml` 只能保存可共享配置或环境变量引用，不得保存密钥、账号口令和隐私数据。 |
-| REQ-02-09 | `openqa/config.yaml` 中自动推断或 Agent 决策的关键字段必须记录 `confidence`、`detected_from`、`decided_by` 或 `evidence`，便于后续校验和纠错。 |
-| REQ-02-10 | `openqa/test_assets/` 必须保存跨 change 稳定复用的测试脚本和测试数据；每个脚本必须有对应的 `.meta.yaml` 锚点文件，记录绑定符号、置信度和状态。 |
-| REQ-02-11 | `openqa/suites/` 必须保存全局可复用的测试套件定义，引用 `test_assets/` 中的脚本，不直接引用 change 工作区内的草稿。 |
-| REQ-02-12 | `openqa/config.yaml` 必须支持 `reports.retention` 配置，定义各类报告的保留策略（最大保留次数或天数）；change 维度的执行记录跟随 change 归档保留，不受 suite 保留策略影响。 |
-| REQ-02-13 | Slash commands 和 skill 文件必须安装到 AI 宿主对应的隐藏目录（`.cursor/`、`.codebuddy/` 等），不存放在 `openqa/` 目录内。 |
-| REQ-02-14 | `openqa init` 必须生成 `.gitignore` 建议规则，推荐排除 `openqa/reports/*/evidence/` 等大型证据目录，保留团队共享的 changes、test_assets、suites、knowledge。 |
+| REQ-02-01 | `openguard/config.yaml` 必须保存项目测试画像，包括项目类型、AI 宿主列表、扫描范围、需求入口、运行方式、自动化控制方式、证据采集、执行策略和默认门禁。 |
+| REQ-02-02 | `openguard/changes/` 必须保存每次 QA change 的工作区，包括 `test_scripts/`（草稿脚本）和 `test_fixtures/`（专用测试数据）子目录。 |
+| REQ-02-03 | `openguard/artifacts/` 必须保存工具生成的索引、delta、影响图、矩阵和 overlay。 |
+| REQ-02-04 | `openguard/reports/` 必须按 `suites/<name>/<run-id>/` 和 `changes/<id>/<run-id>/` 结构保存执行报告；每次执行必须独立存储，不覆盖历史。 |
+| REQ-02-05 | `openguard/baselines/` 必须保存截图、状态、性能等基线资产及 metadata。 |
+| REQ-02-06 | `openguard/knowledge/` 必须保存可复用项目知识与经验。 |
+| REQ-02-07 | `openguard/config.yaml` 中未补齐的运行配置必须显式记录为 incomplete、missing 或 unknowns，不得让后续执行阶段隐式猜测。 |
+| REQ-02-08 | `openguard/config.yaml` 只能保存可共享配置或环境变量引用，不得保存密钥、账号口令和隐私数据。 |
+| REQ-02-09 | `openguard/config.yaml` 中自动推断或 Agent 决策的关键字段必须记录 `confidence`、`detected_from`、`decided_by` 或 `evidence`，便于后续校验和纠错。 |
+| REQ-02-10 | `openguard/test_assets/` 必须保存跨 change 稳定复用的测试脚本和测试数据；每个脚本必须有对应的 `.meta.yaml` 锚点文件，记录绑定符号、置信度和状态。 |
+| REQ-02-11 | `openguard/suites/` 必须保存全局可复用的测试套件定义，引用 `test_assets/` 中的脚本，不直接引用 change 工作区内的草稿。 |
+| REQ-02-12 | `openguard/config.yaml` 必须支持 `reports.retention` 配置，定义各类报告的保留策略（最大保留次数或天数）；change 维度的执行记录跟随 change 归档保留，不受 suite 保留策略影响。 |
+| REQ-02-13 | Slash commands 和 skill 文件必须安装到 AI 宿主对应的隐藏目录（`.cursor/`、`.codebuddy/` 等），不存放在 `openguard/` 目录内。 |
+| REQ-02-14 | `openguard init` 必须生成 `.gitignore` 建议规则，推荐排除 `openguard/reports/*/evidence/` 等大型证据目录，保留团队共享的 changes、test_assets、suites、knowledge。 |
 
 
 
 
 ## `config.yaml` 配置画像
 
-`openqa init` 生成的 `openqa/config.yaml` 应作为后续扫描、矩阵和执行的统一项目画像入口：
+`openguard init` 生成的 `openguard/config.yaml` 应作为后续扫描、矩阵和执行的统一项目画像入口：
 
 
 ```yaml
@@ -171,7 +171,7 @@ runtime:
 automation:
   control_channel:
     type: websocket
-    url_env: OPENQA_CONTROL_WS_URL
+    url_env: OPENGUARD_CONTROL_WS_URL
     confidence: low
   fallback: manual-or-blackbox
   missing:
@@ -198,7 +198,7 @@ change 工作区内的完整产物列表及每个产物的生成阶段，见 `RE
 
 ## EARS 使用规则
 
-OpenQA 应在 `requirements.md` 中引入 EARS，但只用于**需求行为与验收项**，不强行用于报告、矩阵或日志。
+OpenGuard 应在 `requirements.md` 中引入 EARS，但只用于**需求行为与验收项**，不强行用于报告、矩阵或日志。
 
 常用句式：
 
@@ -222,8 +222,8 @@ WHERE <特性> IS <条件> THE <系统> SHALL <响应>
 ## 验收标准
 
 - 产物格式选择能解释：为何用 Markdown/YAML/JSON/JSONL/SARIF/JUnit。
-- `openqa/config.yaml` 能稳定表达项目测试画像，且关键推断字段包含证据来源、置信度、决策方式；缺失配置以 incomplete、missing 或 unknowns 明示。
-- Agent 宿主可直接读取 `openqa/changes/<id>/` 下的文件自行组织上下文，不依赖 OpenQA 生成专用 context 文件。
+- `openguard/config.yaml` 能稳定表达项目测试画像，且关键推断字段包含证据来源、置信度、决策方式；缺失配置以 incomplete、missing 或 unknowns 明示。
+- Agent 宿主可直接读取 `openguard/changes/<id>/` 下的文件自行组织上下文，不依赖 OpenGuard 生成专用 context 文件。
 - 每个报告结论都能追溯到 EARS 需求、代码引用、证据或人工豁免。
 - 所有机器可读产物必须有 schema 或标准格式约束。
 

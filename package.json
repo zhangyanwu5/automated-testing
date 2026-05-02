@@ -1,5 +1,5 @@
 {
-  "name": "openqa-dev",
+  "name": "openguard-dev",
   "private": true,
   "scripts": {
     "rebuild":      "node scripts/rebuild.mjs",

@@ -2,7 +2,7 @@
 
 ## 目标
 
-OpenQA 必须按矩阵执行测试，采集证据，区分失败类型，并生成适合 Agent、CI 和人工审阅的报告组合。
+OpenGuard 必须按矩阵执行测试，采集证据，区分失败类型，并生成适合 Agent、CI 和人工审阅的报告组合。
 
 ## 执行链路
 
@@ -12,17 +12,17 @@ OpenQA 必须按矩阵执行测试，采集证据，区分失败类型，并生�
 
 ## 执行器职责边界
 
-OpenQA 执行器是确定性的本地流程编排器，负责按矩阵调度、启动目标应用、采集证据和落盘报告，不在执行过程中调用大模型。
+OpenGuard 执行器是确定性的本地流程编排器，负责按矩阵调度、启动目标应用、采集证据和落盘报告，不在执行过程中调用大模型。
 
-AI 宿主（CodeBuddy / Claude Code / Cursor 等）与 OpenQA 的分工：
+AI 宿主（CodeBuddy / Claude Code / Cursor 等）与 OpenGuard 的分工：
 
 | 角色 | 职责 |
 | --- | --- |
 | AI 宿主 | 生成测试脚本、读取执行报告、推理归因、输出 `report_overlay.yaml` |
-| OpenQA 执行器 | 校验新鲜度与脚本状态、启动目标应用、按矩阵调度运行测试脚本、采集证据、写入报告 |
+| OpenGuard 执行器 | 校验新鲜度与脚本状态、启动目标应用、按矩阵调度运行测试脚本、采集证据、写入报告 |
 | 测试脚本 | 通过各项目类型对应的控制通道（Playwright / WebSocket / RPC 等）操控目标应用，断言结果以约定格式输出供执行器采集 |
 
-AI 宿主与 OpenQA 之间只通过文件产物和 CLI 通信（`state.yaml`、`run_report.md`、`report_overlay.yaml` 等），不在执行过程中直接操作目标应用。
+AI 宿主与 OpenGuard 之间只通过文件产物和 CLI 通信（`state.yaml`、`run_report.md`、`report_overlay.yaml` 等），不在执行过程中直接操作目标应用。
 
 
 
@@ -31,7 +31,7 @@ AI 宿主与 OpenQA 之间只通过文件产物和 CLI 通信（`state.yaml`、`
 每次执行必须生成独立的 Run ID，报告存入独立目录，不覆盖历史记录：
 
 ```text
-openqa/reports/
+openguard/reports/
   suites/
 
     <suite-name>/
@@ -105,6 +105,11 @@ retention:
 | REQ-07-20 | `timeline.md` 必须展示失败前后的关键步骤，不要求用户阅读原始日志；用户只读 `timeline.md` 就能理解本次测试过程。 |
 | REQ-07-21 | `decision_log.md` 必须解释为什么选择冒烟 / 增量 / 完整测试、为什么跳过或阻断某些项，以及所有人工豁免记录。 |
 | REQ-07-22 | 操作记录不得保存密钥、账号口令或隐私数据；敏感信息扫描失败时必须拒绝写入。 |
+| REQ-07-23 | 执行器必须根据 `config.yaml` 的 `runtime.mode` 自动启动目标应用（`auto_start: true` 时），无需用户手动操作；启动协议详见 `REQ_16_RUNTIME_LAUNCHER.md`。 |
+| REQ-07-24 | 执行器必须通过确定性信号（日志模式、HTTP 响应、端口可达）判断应用就绪，不使用固定等待时间；就绪规则详见 `REQ_16_RUNTIME_LAUNCHER.md`。 |
+| REQ-07-25 | Unity editor-playmode 模式下，执行器必须自动启动 Unity Editor、等待编译和就绪、选择入口场景并进入 PlayMode，全程无需用户干预。 |
+| REQ-07-26 | 执行器必须在启动超时（`runtime.startup_timeout_seconds`）后将失败归类为 `env` 类型，输出日志摘要，终止执行；不得将启动失败归类为测试失败。 |
+| REQ-07-27 | 执行结束后（成功或失败），执行器必须按 `runtime.auto_close` 配置决定是否关闭目标应用；由用户手动打开的应用不得强制关闭（通过进程启动者判断）。 |
 
 ## 格式要求
 
@@ -124,7 +129,7 @@ retention:
 
 ## 宿主形态
 
-执行器必须根据 `openqa/config.yaml` 中的 `project.type`、`runtime` 和 `automation` 选择启动、连接、前置校验和证据采集方式。
+执行器必须根据 `openguard/config.yaml` 中的 `project.type`、`runtime` 和 `automation` 选择启动、连接、前置校验和证据采集方式。
 
 
 | 宿主 | 控制方式 | 关键执行配置 |
@@ -135,7 +140,7 @@ retention:
 | Web / H5 | Playwright 等 DevTools 协议工具。 | 启动命令、访问 URL、浏览器、console / network / screenshot 采集。 |
 | Backend / API | 服务启动命令 + 健康检查 + API 契约或测试命令。 | 启动命令、健康检查、OpenAPI / gRPC / Postman 入口、依赖服务和测试数据。 |
 
-若真实执行必需的 `runtime` 或 `automation` 配置缺失、低置信度或与当前矩阵冲突，`apply` 必须在执行前阻断真实测试，并在报告或 `openqa/changes/<id>/unknowns.md` 中说明缺失项、证据和下一步建议。
+若真实执行必需的 `runtime` 或 `automation` 配置缺失、低置信度或与当前矩阵冲突，`apply` 必须在执行前阻断真实测试，并在报告或 `openguard/changes/<id>/unknowns.md` 中说明缺失项、证据和下一步建议。
 
 
 ## 报告字段

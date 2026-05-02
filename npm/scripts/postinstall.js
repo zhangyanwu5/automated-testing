@@ -2,10 +2,10 @@
 /**
  * postinstall.js
  *
- * npm install -g @fission-ai/openqa 后自动执行：
+ * npm install -g @fission-ai/openguard 后自动执行：
  *   1. 检测本机 Python（3.10+）
- *   2. pip install openqa-agent（来自 PyPI，或本地开发时从 src/ 安装）
- *   3. 将 Python 解释器路径写入 .openqa-python-path 供 bin/openqa.js 使用
+ *   2. pip install openguard-agent（来自 PyPI，或本地开发时从 src/ 安装）
+ *   3. 将 Python 解释器路径写入 .openguard-python-path 供 bin/openguard.js 使用
  *
  * 设计原则：
  *   - 永远不会让 npm install 失败（所有错误都被捕获）
@@ -22,13 +22,13 @@ import os from 'os';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PKG_ROOT = dirname(__dirname);
 // PyPI 包名
-const PYPI_PACKAGE = 'openqa-agent';
+const PYPI_PACKAGE = 'openguard-agent';
 // 最低 Python 版本
 const MIN_PYTHON_MAJOR = 3;
 const MIN_PYTHON_MINOR = 10;
 
 // ─── CI / opt-out 跳过 ────────────────────────────────────────────────────────
-if (process.env.CI === 'true' || process.env.CI === '1' || process.env.OPENQA_NO_PYTHON === '1') {
+if (process.env.CI === 'true' || process.env.CI === '1' || process.env.OPENGUARD_NO_PYTHON === '1') {
   process.exit(0);
 }
 
@@ -73,12 +73,12 @@ function getPythonFullPath(pythonCmd) {
   return pythonCmd;
 }
 
-/** 检查 openqa 是否已安装且版本可用 */
-function isOpenqaInstalled(pythonCmd) {
+/** 检查 openguard 是否已安装且版本可用 */
+function isOpenguardInstalled(pythonCmd) {
   try {
     const result = spawnSync(
       pythonCmd,
-      ['-c', 'import openqa; print("ok")'],
+      ['-c', 'import openguard; print("ok")'],
       { encoding: 'utf8', stdio: 'pipe' }
     );
     return result.status === 0 && result.stdout.includes('ok');
@@ -86,9 +86,9 @@ function isOpenqaInstalled(pythonCmd) {
   return false;
 }
 
-/** 用 pip 安装 openqa-agent */
+/** 用 pip 安装 openguard-agent */
 function pipInstall(pythonCmd) {
-  console.log(`\n[openqa] 正在安装 Python 包 ${PYPI_PACKAGE}…`);
+  console.log(`\n[openguard] 正在安装 Python 包 ${PYPI_PACKAGE}…`);
 
   // 检查是否有本地 src/（开发模式）
   const localSrc = join(PKG_ROOT, '..', 'pyproject.toml');
@@ -109,33 +109,33 @@ function pipInstall(pythonCmd) {
 /** 将 Python 路径写入缓存文件 */
 function writePythonPathCache(pythonPath) {
   try {
-    writeFileSync(join(PKG_ROOT, '.openqa-python-path'), pythonPath, 'utf8');
+    writeFileSync(join(PKG_ROOT, '.openguard-python-path'), pythonPath, 'utf8');
   } catch {}
 }
 
 // ─── 主流程 ───────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log('\n[openqa] 检测 Python 环境…');
+  console.log('\n[openguard] 检测 Python 环境…');
 
   // 1. 查找 Python
   const pythonCmd = findPython();
   if (!pythonCmd) {
-    console.error('\n[openqa] 未找到 Python 3.10+。');
+    console.error('\n[openguard] 未找到 Python 3.10+。');
     console.error('请先安装 Python：https://www.python.org/downloads/');
     console.error('\n安装 Python 后，运行：');
-    console.error('  pip install openqa-agent');
-    console.error('  npm install -g @fission-ai/openqa\n');
+    console.error('  pip install openguard-agent');
+    console.error('  npm install -g @fission-ai/openguard\n');
     // 不让 npm install 失败
     return;
   }
 
   const pythonPath = getPythonFullPath(pythonCmd);
-  console.log(`[openqa] 找到 Python：${pythonPath}`);
+  console.log(`[openguard] 找到 Python：${pythonPath}`);
 
   // 2. 检查是否已安装
-  if (isOpenqaInstalled(pythonCmd)) {
-    console.log('[openqa] openqa Python 包已安装，跳过重复安装。');
+  if (isOpenguardInstalled(pythonCmd)) {
+    console.log('[openguard] openguard Python 包已安装，跳过重复安装。');
     writePythonPathCache(pythonPath);
     printSuccess();
     return;
@@ -144,9 +144,9 @@ async function main() {
   // 3. pip install
   const ok = pipInstall(pythonCmd);
   if (!ok) {
-    console.error('\n[openqa] pip install 失败。请手动安装：');
-    console.error(`  ${pythonCmd} -m pip install openqa-agent`);
-    console.error('\n安装完成后直接运行 openqa 命令即可。\n');
+    console.error('\n[openguard] pip install 失败。请手动安装：');
+    console.error(`  ${pythonCmd} -m pip install openguard-agent`);
+    console.error('\n安装完成后直接运行 openguard 命令即可。\n');
     return;
   }
 
@@ -156,18 +156,18 @@ async function main() {
 }
 
 function printSuccess() {
-  console.log('\n[openqa] 安装完成！');
+  console.log('\n[openguard] 安装完成！');
   console.log('\n快速开始：');
   console.log('  cd your-project');
-  console.log('  openqa init');
-  console.log('  openqa new "验证某个功能"');
-  console.log('  openqa continue');
-  console.log('  openqa apply');
-  console.log('  openqa archive\n');
+  console.log('  openguard init');
+  console.log('  openguard new "验证某个功能"');
+  console.log('  openguard continue');
+  console.log('  openguard apply');
+  console.log('  openguard archive\n');
 }
 
 main().catch((err) => {
   // 永远不让 npm install 失败
-  console.error('[openqa] postinstall 发生意外错误（不影响安装）:', err.message);
+  console.error('[openguard] postinstall 发生意外错误（不影响安装）:', err.message);
   process.exit(0);
 });

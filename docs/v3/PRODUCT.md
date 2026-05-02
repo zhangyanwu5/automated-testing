@@ -1,14 +1,14 @@
-# OpenQA 产品说明
+﻿# OpenGuard 产品说明
 
-> **一句话定位：** OpenQA 是面向 AI 编码宿主的自动化测试与代码质量产品。它像 OpenSpec 管理规格变更一样，用轻量指令和文件化产物管理「需求/代码变更 → 测试理解 → 代码 Review → 测试执行 → 报告归因 → 经验沉淀」的闭环。
+> **一句话定位：** OpenGuard 是面向 AI 编码宿主的自动化测试与代码质量产品。它像 OpenSpec 管理规格变更一样，用轻量指令和文件化产物管理「需求/代码变更 → 测试理解 → 代码 Review → 测试执行 → 报告归因 → 经验沉淀」的闭环。
 
-OpenQA 不在工具进程内调用大模型；Claude Code、CodeBuddy、Cursor 等 Agent 宿主负责推理，OpenQA 负责确定性的 CLI、协议、目录、校验、执行编排和证据落盘。
+OpenGuard 不在工具进程内调用大模型；Claude Code、CodeBuddy、Cursor 等 Agent 宿主负责推理，OpenGuard 负责确定性的 CLI、协议、目录、校验、执行编排和证据落盘。
 
 ---
 
 ## 1. 产品目标
 
-OpenQA 解决四个问题：
+OpenGuard 解决四个问题：
 
 1. **指令少而稳定**：用户只记少数高层指令，底层扫描、规划、代码 Review、矩阵、执行、报告由状态机推进。
 2. **功能可验证**：测试结果与代码 Review 结果都落盘为带版本报告，可校验、可回溯、可复现。
@@ -19,73 +19,73 @@ OpenQA 解决四个问题：
 
 ## 2. 指令层：少数高层指令
 
-OpenQA 参考 OpenSpec 的轻量方式，用户只需记 3 个日常指令：`run`（开始任务）、`apply`（执行测试）、`archive`（归档）。AI 驱动循环在后台自主完成所有准备工作，用户只在需要决策时被打断。
+OpenGuard 参考 OpenSpec 的轻量方式，用户只需记 3 个日常指令：`run`（开始任务）、`apply`（执行测试）、`archive`（归档）。AI 驱动循环在后台自主完成所有准备工作，用户只在需要决策时被打断。
 
 ### 2.1 用户指令
 
 | 指令 | 定位 | 说明 |
 | --- | --- | --- |
-| `openqa init` | 初始化 | 在当前项目创建 `openqa/`，生成项目测试画像、配置，向用户选定的 AI 宿主安装 Slash Commands 和 Agent Skills。**只做一次。** |
-| `openqa update` | 更新工具指令 | 刷新 `/oqa:*` 指令、Skill、模板和 schema，不改变已有项目产物。 |
-| `openqa run <目标>` | 开始一次测试任务 | 创建 change 工作区并触发 AI 驱动循环：AI 自主生成需求、测试知识、Review 计划、测试矩阵，直到准备就绪后呈现确认摘要等待用户确认。 |
-| `openqa apply` | 执行与报告 | 用户确认后执行代码 Review、测试矩阵、采集证据、生成报告。支持 `--suite <name>` 直接执行全局测试套件。 |
-| `openqa archive` | 归档与沉淀 | 关闭已完成 change，把验证稳定的结论沉淀到 `openqa/knowledge/`，晋升稳定脚本。 |
-| `openqa help` | 帮助 | 输出用户指令、参数与当前项目建议下一步（不展示内部命令）。 |
+| `openguard init` | 初始化 | 在当前项目创建 `openguard/`，生成项目测试画像、配置，向用户选定的 AI 宿主安装 Slash Commands 和 Agent Skills。**只做一次。** |
+| `openguard update` | 更新工具指令 | 刷新 `/opg:*` 指令、Skill、模板和 schema，不改变已有项目产物。 |
+| `openguard run <目标>` | 开始一次测试任务 | 创建 change 工作区并触发 AI 驱动循环：AI 自主生成需求、测试知识、Review 计划、测试矩阵，直到准备就绪后呈现确认摘要等待用户确认。 |
+| `openguard apply` | 执行与报告 | 用户确认后执行代码 Review、测试矩阵、采集证据、生成报告。支持 `--suite <name>` 直接执行全局测试套件。 |
+| `openguard archive` | 归档与沉淀 | 关闭已完成 change，把验证稳定的结论沉淀到 `openguard/knowledge/`，晋升稳定脚本。 |
+| `openguard help` | 帮助 | 输出用户指令、参数与当前项目建议下一步（不展示内部命令）。 |
 
 ### 2.1a 内部命令（用户不感知）
 
 | 命令 | 说明 |
 | --- | --- |
-| `openqa _advance` | 状态机推进：执行确定性自动生成（scan/impact/matrix）、更新 `state.yaml`。由 AI 在驱动循环中调用，不出现在 `help` 或用户文档中。 |
+| `openguard _advance` | 状态机推进：执行确定性自动生成（scan/impact/matrix）、更新 `state.yaml`。由 AI 在驱动循环中调用，不出现在 `help` 或用户文档中。 |
 
 ### 2.2 Slash Commands
 
-`openqa init` / `openqa update` 向 AI 宿主安装：
+`openguard init` / `openguard update` 向 AI 宿主安装：
 
 | Slash Command | 说明 |
 | --- | --- |
-| `/oqa:run <目标>` | 开始一次测试任务，AI 自主推进准备阶段，完成后等用户确认执行。 |
-| `/oqa:apply` | 用户确认后执行测试，生成报告。 |
-| `/oqa:archive` | 归档 change，沉淀可复用知识。 |
-| `/oqa:continue` | 手动恢复入口：AI 中断或用户想查看进度时使用，从当前状态继续驱动循环。正常流程无需触发。 |
+| `/opg:run <目标>` | 开始一次测试任务，AI 自主推进准备阶段，完成后等用户确认执行。 |
+| `/opg:apply` | 用户确认后执行测试，生成报告。 |
+| `/opg:archive` | 归档 change，沉淀可复用知识。 |
+| `/opg:continue` | 手动恢复入口：AI 中断或用户想查看进度时使用，从当前状态继续驱动循环。正常流程无需触发。 |
 
-这组命令的设计原则：**用户描述目标，OpenQA 维护状态；AI 自主推进，只在需要决策时打断用户。**
+这组命令的设计原则：**用户描述目标，OpenGuard 维护状态；AI 自主推进，只在需要决策时打断用户。**
 
 ### 2.3 典型用户流程
 
 ```
 # 项目首次初始化（只做一次）
-openqa init
+openguard init
 
 # 开始一次测试任务
-/oqa:run "测试登录流程"
+/opg:run "测试登录流程"
   → AI 内部自主循环（用户不感知）：
-      openqa run "测试登录流程"   # 创建 change + 初始扫描
+      openguard run "测试登录流程"   # 创建 change + 初始扫描
       [AI 分析代码，写 requirements.md]
-      openqa _advance             # 影响分析 + 状态更新
+      openguard _advance             # 影响分析 + 状态更新
       [AI 写 test_knowledge.md + review_plan.md]
-      openqa _advance             # 生成 test_matrix.json
+      openguard _advance             # 生成 test_matrix.json
       → 准备完成，state=ready_for_apply
   → AI 停下来汇报：
       "准备完成：7 个测试用例，1 个 Review 问题需关注，预计 5 分钟
        是否执行？"
 
 # 用户确认后执行
-/oqa:apply
+/opg:apply
 
 # 归档（可选）
-/oqa:archive
+/opg:archive
 ```
 
-### 2.4 `openqa init` 体验
+### 2.4 `openguard init` 体验
 
 ```bash
 cd your-project
-openqa init
+openguard init
 ```
 
 ```text
-Welcome to OpenQA / 欢迎使用 OpenQA
+Welcome to OpenGuard / 欢迎使用 OpenGuard
 
 ? Select language / 选择语言:
   > 中文
@@ -113,16 +113,16 @@ Welcome to OpenQA / 欢迎使用 OpenQA
   ? unity.editor_path（Unity 编辑器路径）:
 
 初始化完成:
-  openqa/           QA 工作区（建议提交到 Git）
-  .cursor/skills/   OpenQA agent skills
+  openguard/           QA 工作区（建议提交到 Git）
+  .cursor/skills/   OpenGuard agent skills
   .codebuddy/skills/
-  .gitignore        已更新（排除 openqa/reports/*/evidence/）
+  .gitignore        已更新（排除 openguard/reports/*/evidence/）
 
 快速开始:
-  /oqa:new       开启一次测试变更
-  /oqa:continue  推进下一步
-  /oqa:apply     执行 Review 与测试
-  /oqa:archive   归档并沉淀经验
+  /opg:new       开启一次测试变更
+  /opg:continue  推进下一步
+  /opg:apply     执行 Review 与测试
+  /opg:archive   归档并沉淀经验
 ```
 
 
@@ -130,7 +130,7 @@ Welcome to OpenQA / 欢迎使用 OpenQA
 
 ```text
 # 项目产出物（显式目录，提交到 Git）
-openqa/
+openguard/
   config.yaml              # 项目测试画像：项目类型、AI宿主、扫描、运行、自动化、证据、默认策略
   changes/                 # 每次需求/代码/缺陷变更的 QA 工作区
   artifacts/               # 索引、delta、影响图、矩阵、overlay、schema 校验结果
@@ -142,18 +142,18 @@ openqa/
 
 # AI 宿主配置（各自的隐藏目录）
 .cursor/
-  skills/openqa-*/         # OpenQA agent skills
-  commands/oqa_*.md        # Slash commands
+  skills/openguard-*/         # OpenGuard agent skills
+  commands/opg_*.md        # Slash commands
 .codebuddy/
-  skills/openqa-*/
-  commands/oqa_*.md
+  skills/openguard-*/
+  commands/opg_*.md
 CLAUDE.md                  # Claude Code：skill 引用
 ```
 
 
 ### 2.4 策略不是新命令
 
-为避免指令膨胀，OpenQA 不为“全量扫描、增量扫描、完整测试、增量测试、冒烟测试”分别设计一组新命令，而是把它们作为 `new / continue / apply` 的**策略参数**和项目配置：
+为避免指令膨胀，OpenGuard 不为“全量扫描、增量扫描、完整测试、增量测试、冒烟测试”分别设计一组新命令，而是把它们作为 `new / continue / apply` 的**策略参数**和项目配置：
 
 | 策略维度 | 可选值 | 说明 |
 | --- | --- | --- |
@@ -165,43 +165,43 @@ CLAUDE.md                  # Claude Code：skill 引用
 例如：
 
 ```bash
-openqa new "验证新手引导奖励" --test-suite smoke
-openqa apply --test-suite incremental
-openqa apply --scan-scope full --test-suite requirement-full
+openguard new "验证新手引导奖励" --test-suite smoke
+openguard apply --test-suite incremental
+openguard apply --scan-scope full --test-suite requirement-full
 ```
 
-日常用户仍主要使用 `/oqa:new`、`/oqa:continue`、`/oqa:apply`；策略可由 Agent、CI 或 `config.yaml` 自动选择。
+日常用户仍主要使用 `/opg:new`、`/opg:continue`、`/opg:apply`；策略可由 Agent、CI 或 `config.yaml` 自动选择。
 
 ---
 
 ## 3. 功能层：每个高层指令背后的功能
 
-### 3.1 `openqa init`
+### 3.1 `openguard init`
 
-**用户感知：** 一次初始化，项目具备 OpenQA 能力。
+**用户感知：** 一次初始化，项目具备 OpenGuard 能力。
 
 **背后功能：**
 
 - 第一步询问语言偏好（中文 / English），之后所有交互输出均使用所选语言。
 - 扫描项目，自动探测项目类型和已有 AI 宿主目录。
 - 通过多选菜单让用户主动选择 AI 宿主（Cursor / CodeBuddy / Claude Code 等）；已检测到宿主目录时预勾选作为推荐，未安装任何宿主的项目也可正常选择。
-- 创建 `openqa/` 工作区。
+- 创建 `openguard/` 工作区。
 
 - 自动探测项目特征，识别 `web`、`webgl`、`unity`、`unreal`、`api`、`mixed` 或 `unknown` 项目测试类型。
 - 由确定性规则或 AI 宿主基于证据选择默认项目画像、运行方式、执行模式、证据类型和默认策略。
 - 只追问无法可靠推断、存在多解且影响执行、涉及本机路径、权限、设备、账号环境或外部服务的信息。
-- 生成 `openqa/config.yaml`，记录项目测试画像、证据来源、置信度、决策方式、缺失项和执行策略。
+- 生成 `openguard/config.yaml`，记录项目测试画像、证据来源、置信度、决策方式、缺失项和执行策略。
 - 无法确认的运行配置写入 `runtime.status=incomplete`、`missing` 或 `unknowns`，不阻塞基础初始化。
 - 生成 `.gitignore` 建议规则，排除大型执行证据，保留团队共享产物。
-- 检测是否存在 OpenSpec；若存在，提示可通过 `openqa new --from-openspec <change-id>` 建立联动。
+- 检测是否存在 OpenSpec；若存在，提示可通过 `openguard new --from-openspec <change-id>` 建立联动。
 - 生成初始 schema 与示例 change 模板。
 
 
 ---
 
-### 3.2 `openqa update`
+### 3.2 `openguard update`
 
-**用户感知：** 升级 OpenQA 后刷新当前项目的 AI 指令和模板。
+**用户感知：** 升级 OpenGuard 后刷新当前项目的 AI 指令和模板。
 
 **背后功能：**
 
@@ -212,17 +212,17 @@ openqa apply --scan-scope full --test-suite requirement-full
 
 ---
 
-### 3.3 `openqa new <目标>`
+### 3.3 `openguard new <目标>`
 
 **用户感知：** 开始一次新的 QA 变更，例如：
 
 ```bash
-openqa new "验证新手引导任务奖励逻辑"
+openguard new "验证新手引导任务奖励逻辑"
 ```
 
 **背后功能：**
 
-- 创建 `openqa/changes/<change-id>/`。
+- 创建 `openguard/changes/<change-id>/`。
 - 记录本次目标、来源需求、相关代码变更和人工备注。
 
 - 建立事实快照：代码路径、文件哈希、需求文档指纹、已有测试资产。
@@ -233,7 +233,7 @@ openqa new "验证新手引导任务奖励逻辑"
 建议目录：
 
 ```text
-openqa/changes/<change-id>/
+openguard/changes/<change-id>/
   intent.md                # 本次 QA 变更目标
 
   requirements.md          # EARS 风格需求验收项
@@ -246,9 +246,9 @@ openqa/changes/<change-id>/
 
 ---
 
-### 3.4 `openqa continue`
+### 3.4 `openguard continue`
 
-**用户感知：** 不用记下一条命令，让 OpenQA 根据状态推进。
+**用户感知：** 不用记下一条命令，让 OpenGuard 根据状态推进。
 
 **背后功能：**
 
@@ -262,7 +262,7 @@ openqa/changes/<change-id>/
 | 缺 Review 计划 | 根据影响面生成代码 Review 检查项 | `review_plan.md` |
 | 缺测试矩阵 | 将测试知识转为可执行任务 | `test_matrix.json` |
 | 存在 unknowns | 明确列出需补充的问题 | `unknowns.md` |
-| 可执行 | 提示进入 `/oqa:apply` | `state.yaml` |
+| 可执行 | 提示进入 `/opg:apply` | `state.yaml` |
 
 `continue` 背后的测试知识需要表达：
 
@@ -276,7 +276,7 @@ openqa/changes/<change-id>/
 
 ---
 
-### 3.5 `openqa apply`
+### 3.5 `openguard apply`
 
 **用户感知：** 对当前 change 做代码 Review 与测试执行，并把确认过的结果写回。
 
@@ -323,7 +323,7 @@ Review 报告至少包含：
 
 ### 3.6 操作过程记录
 
-OpenQA 每次执行都必须留下可回溯的过程记录，让用户不用翻原始日志也能知道“怎么测的、在哪失败、为什么失败”。
+OpenGuard 每次执行都必须留下可回溯的过程记录，让用户不用翻原始日志也能知道“怎么测的、在哪失败、为什么失败”。
 
 | 产物 | 格式 | 说明 |
 | --- | --- | --- |
@@ -338,7 +338,7 @@ OpenQA 每次执行都必须留下可回溯的过程记录，让用户不用翻�
 
 ### 3.7 扫描与测试策略
 
-OpenQA 内部必须同时支持**全量**与**增量**，但由状态机选择，不要求用户手工拼命令。
+OpenGuard 内部必须同时支持**全量**与**增量**，但由状态机选择，不要求用户手工拼命令。
 
 扫描模式（`init-probe` / `knowledge-scan` / `full` / `incremental` / `auto`）和测试套件（`smoke` / `incremental` / `requirement-full` / `regression` / `full`）的详细定义与触发规则，见 `REQ_04_SCAN_AND_IMPACT.md` 和 `REQ_05_TEST_STRATEGY_AND_MATRIX.md`。
 
@@ -348,15 +348,15 @@ OpenQA 内部必须同时支持**全量**与**增量**，但由状态机选择�
 
 ---
 
-### 3.8 `openqa archive`
+### 3.8 `openguard archive`
 
 **用户感知：** 当前 QA change 完成，归档并沉淀经验。
 
 **背后功能：**
 
 - 校验当前 change 的必需产物是否完整。
-- 归档 `openqa/changes/<change-id>/`，保留审计链路。
-- 将稳定结论晋升到 `openqa/knowledge/`。
+- 归档 `openguard/changes/<change-id>/`，保留审计链路。
+- 将稳定结论晋升到 `openguard/knowledge/`。
 
 - 标记过期或被否定的旧知识。
 - 输出本次变更对长期测试资产的影响摘要。
@@ -365,7 +365,7 @@ OpenQA 内部必须同时支持**全量**与**增量**，但由状态机选择�
 
 ## 4. 迭代层：需求更新、代码修改如何演进
 
-OpenQA 的迭代单位是 **change**。一次需求更新、代码修改、缺陷修复、测试策略调整，都应进入一个 change。
+OpenGuard 的迭代单位是 **change**。一次需求更新、代码修改、缺陷修复、测试策略调整，都应进入一个 change。
 
 ### 4.1 标准闭环
 
@@ -375,14 +375,14 @@ NEW → CONTINUE → APPLY → ARCHIVE
 
 | 阶段 | 指令 | 关键产物 | 目的 |
 | --- | --- | --- | --- |
-| NEW | `openqa new <目标>` | `intent.md`、`requirements.md`、`state.yaml`、`snapshot.json`、`delta.json`、`artifact_index.yaml`、`openspec_link.yaml`（可选） | 记录目标并建立工作区；若来自 OpenSpec，则保存关联。 |
-| CONTINUE | `openqa continue` | `impact_graph.json`、`test_knowledge.md`、`review_plan.md`、`test_matrix.json` | 自动补齐下一份必要产物；宿主按需读取这些文件组织上下文。 |
-| APPLY | `openqa apply` | `review_findings.sarif.json`、`review_report.md`、`run_report.json`、`run_report.junit.xml`、`run_report.md`、`operation_log.jsonl`、`timeline.md`、`evidence_index.yaml`、`report_overlay.yaml` | 按策略做 Review、冒烟/增量/完整测试、采证、归因、过程记录、合并确认结果。 |
-| ARCHIVE | `openqa archive` | `archive/`、`knowledge/` 更新 | 归档 change，沉淀经验。 |
+| NEW | `openguard new <目标>` | `intent.md`、`requirements.md`、`state.yaml`、`snapshot.json`、`delta.json`、`artifact_index.yaml`、`openspec_link.yaml`（可选） | 记录目标并建立工作区；若来自 OpenSpec，则保存关联。 |
+| CONTINUE | `openguard continue` | `impact_graph.json`、`test_knowledge.md`、`review_plan.md`、`test_matrix.json` | 自动补齐下一份必要产物；宿主按需读取这些文件组织上下文。 |
+| APPLY | `openguard apply` | `review_findings.sarif.json`、`review_report.md`、`run_report.json`、`run_report.junit.xml`、`run_report.md`、`operation_log.jsonl`、`timeline.md`、`evidence_index.yaml`、`report_overlay.yaml` | 按策略做 Review、冒烟/增量/完整测试、采证、归因、过程记录、合并确认结果。 |
+| ARCHIVE | `openguard archive` | `archive/`、`knowledge/` 更新 | 归档 change，沉淀经验。 |
 
 ### 4.2 变更处理策略
 
-| 变更类型 | 如何识别 | OpenQA 如何处理 |
+| 变更类型 | 如何识别 | OpenGuard 如何处理 |
 | --- | --- | --- |
 | 需求更新 | 需求文档或 OpenSpec specs 指纹变化 | `continue` 重新生成影响分析和测试知识；可选择 `smoke`、`incremental` 或 `requirement-full`。 |
 | 代码修改 | 文件哈希、符号摘要或依赖关系变化 | 更新 `delta.json` 和 `impact_graph.json`，标记受影响模块、Review 范围与测试类型。 |
@@ -394,7 +394,7 @@ NEW → CONTINUE → APPLY → ARCHIVE
 
 ### 4.3 迭代原则
 
-- **状态驱动**：用户只需要 `continue`，OpenQA 根据 `state.yaml` 判断下一步。
+- **状态驱动**：用户只需要 `continue`，OpenGuard 根据 `state.yaml` 判断下一步。
 - **事实先行**：所有 Agent 输入必须来自最新快照、需求、报告和知识库。
 - **增量更新**：需求和代码变更只影响相关测试知识、矩阵和执行子图。
 - **overlay 合并**：Agent 不直接改确定性产物，只输出可校验 overlay。
@@ -410,7 +410,7 @@ NEW → CONTINUE → APPLY → ARCHIVE
 
 ## 5. 自我进化：如何越用越聪明
 
-OpenQA 的智能来自**可验证经验的持续沉淀**，不是来自工具内部隐藏推理。
+OpenGuard 的智能来自**可验证经验的持续沉淀**，不是来自工具内部隐藏推理。
 
 ### 5.1 进化闭环
 
@@ -421,7 +421,7 @@ Review 发现 + 执行证据 → Agent 归因 → overlay 合并 → 多轮验�
 ### 5.2 知识分层
 
 ```text
-openqa/knowledge/
+openguard/knowledge/
   project_profile.yaml       # 项目结构、宿主形态、技术栈、运行方式
   control_channels.yaml      # RPC、bridge、输入通道、入口点
   event_catalog.yaml         # 游戏事件知识（knowledge-scan 生成，绑定锚点）
@@ -463,7 +463,7 @@ openqa/knowledge/
 
 ### 5.5 智能提升表现
 
-随着使用次数增加，OpenQA 应逐步做到：
+随着使用次数增加，OpenGuard 应逐步做到：
 
 1. 更快判断代码变更影响哪些测试。
 2. 更准确选择冒烟、增量、完整、回归或全量测试策略。
@@ -478,15 +478,15 @@ openqa/knowledge/
 
 ## 6. 与 OpenSpec 的关系
 
-OpenSpec 管**规格驱动开发**，OpenQA 管**质量验证与反馈**。两者联动后形成闭环：
+OpenSpec 管**规格驱动开发**，OpenGuard 管**质量验证与反馈**。两者联动后形成闭环：
 
 ```text
 OpenSpec: propose/spec/design/tasks → apply
-OpenQA:   new/continue → review/test/gate/report
-OpenSpec: archive（在 OpenQA 通过或人工豁免后）
+OpenGuard:   new/continue → review/test/gate/report
+OpenSpec: archive（在 OpenGuard 通过或人工豁免后）
 ```
 
-| OpenSpec | OpenQA |
+| OpenSpec | OpenGuard |
 | --- | --- |
 | 描述要做什么 | 验证做得对不对 |
 | 管理需求、设计、任务、实现 | 管理测试知识、代码 Review、矩阵、证据、归因、门禁 |
@@ -495,9 +495,9 @@ OpenSpec: archive（在 OpenQA 通过或人工豁免后）
 | `openspec/changes/<id>/design.md` | Review 与影响分析输入 |
 | `openspec/changes/<id>/tasks.md` | 测试范围和验收阶段输入 |
 | `/opsx:apply` | 开发实现 |
-| `/oqa:apply` | Review、测试、门禁报告 |
+| `/opg:apply` | Review、测试、门禁报告 |
 
-OpenQA 可以独立使用；若检测到 OpenSpec，则可通过 `openqa new --from-openspec <change-id>` 建立关联。OpenQA 默认只读 OpenSpec 产物，不修改 OpenSpec；门禁通过后输出可归档结论，供 `/opsx:archive` 使用。
+OpenGuard 可以独立使用；若检测到 OpenSpec，则可通过 `openguard new --from-openspec <change-id>` 建立关联。OpenGuard 默认只读 OpenSpec 产物，不修改 OpenSpec；门禁通过后输出可归档结论，供 `/opsx:archive` 使用。
 
 ---
 
@@ -505,7 +505,7 @@ OpenQA 可以独立使用；若检测到 OpenSpec，则可通过 `openqa new --f
 
 | 不做 | 原因 |
 | --- | --- |
-| 工具进程内调用大模型 | 推理由 Agent 宿主负责，OpenQA 保持确定性和可复现。 |
+| 工具进程内调用大模型 | 推理由 Agent 宿主负责，OpenGuard 保持确定性和可复现。 |
 | 默认修改产品代码或 OpenSpec 产物 | 默认只生成测试、Review、门禁报告和建议；写产品代码或 OpenSpec 产物必须显式授权。 |
 | 用代码 Review 报告替代人工决策 | Review 报告提供证据、风险和建议；是否修改代码仍由 Agent 宿主或人工确认。 |
 | 让用户记大量底层命令 | 扫描、规划、Review、矩阵、报告、知识沉淀应由 `continue/apply/archive` 状态机封装。 |
@@ -521,9 +521,9 @@ OpenQA 可以独立使用；若检测到 OpenSpec，则可通过 `openqa new --f
 | 优先级 | 能力 | 说明 |
 | --- | --- | --- |
 | P0 | `init`、`new`、`continue`、`apply`、`archive` | 打通包含 Review、测试、门禁、过程记录的最小可用闭环。 |
-| P1 | `/oqa:*`、`openqa/changes/`、状态机、`timeline.md` | 让 Agent 和用户都能自然推进并回溯测试工作流。 |
+| P1 | `/opg:*`、`openguard/changes/`、状态机、`timeline.md` | 让 Agent 和用户都能自然推进并回溯测试工作流。 |
 | P2 | OpenSpec 联动 | 读取 OpenSpec proposal/specs/design/tasks，形成开发与验证闭环。 |
-| P3 | `openqa/knowledge/` | 形成长期项目智能。 |
+| P3 | `openguard/knowledge/` | 形成长期项目智能。 |
 
 | P4 | 多宿主执行器 | Unity、Unreal、WebGL、Web/H5、Backend/API 分别接入真实执行。 |
 
@@ -533,5 +533,6 @@ OpenQA 可以独立使用；若检测到 OpenSpec，则可通过 `openqa new --f
 
 | 日期 | 说明 |
 | --- | --- |
-| 2026-05-01 | 精简指令体系，参考 OpenSpec 收敛为 `init/update/new/continue/apply/archive`；统一产品命名为 OpenQA / `openqa`；项目产出物目录统一为 `openqa/`（显式目录），slash commands 和 skills 安装到 AI 宿主各自隐藏目录；补充代码 Review、全量/增量扫描、多级测试策略、操作过程记录、失败回溯和 OpenSpec 联动闭环。 |
+| 2026-05-01 | 精简指令体系，参考 OpenSpec 收敛为 `init/update/new/continue/apply/archive`；统一产品命名为 OpenGuard / `openguard`；项目产出物目录统一为 `openguard/`（显式目录），slash commands 和 skills 安装到 AI 宿主各自隐藏目录；补充代码 Review、全量/增量扫描、多级测试策略、操作过程记录、失败回溯和 OpenSpec 联动闭环。 |
+
 

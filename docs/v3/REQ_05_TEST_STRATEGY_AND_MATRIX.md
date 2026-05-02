@@ -2,7 +2,7 @@
 
 ## 目标
 
-OpenQA 必须覆盖从快速冒烟到发布全量的测试策略，并通过可执行测试矩阵表达任务。需求验收项优先使用 EARS；矩阵使用 JSON，保证执行器稳定消费。
+OpenGuard 必须覆盖从快速冒烟到发布全量的测试策略，并通过可执行测试矩阵表达任务。需求验收项优先使用 EARS；矩阵使用 JSON，保证执行器稳定消费。
 
 ## 测试套件
 
@@ -19,7 +19,7 @@ OpenQA 必须覆盖从快速冒烟到发布全量的测试策略，并通过可�
 | 编号 | 需求 |
 | --- | --- |
 | REQ-05-01 | `test_suite` 必须支持 `smoke`、`incremental`、`requirement-full`、`regression`、`full`。 |
-| REQ-05-02 | 测试矩阵必须由 `requirements.md`、`test_knowledge.md`、`impact_graph.json`、`openqa/config.yaml`、历史知识和策略共同生成。 |
+| REQ-05-02 | 测试矩阵必须由 `requirements.md`、`test_knowledge.md`、`impact_graph.json`、`openguard/config.yaml`、历史知识和策略共同生成。 |
 
 | REQ-05-03 | 矩阵必须支持任务依赖 DAG、优先级、超时、重试、并发和失败快停。 |
 | REQ-05-04 | 无法执行的测试项必须显式标记 `skipped` 和原因，不得静默省略。 |
@@ -32,7 +32,7 @@ OpenQA 必须覆盖从快速冒烟到发布全量的测试策略，并通过可�
 | REQ-05-11 | 矩阵生成时必须优先引用 `test_assets/` 中状态为 `verified` 的稳定脚本；`needs-review` 脚本可引用但须标注；`stale` 和 `broken` 脚本不得引用，只能生成新草稿。 |
 | REQ-05-12 | 矩阵中每个引用稳定脚本的任务必须记录脚本路径、锚点状态和锚点哈希快照，保证执行报告可追溯到具体脚本版本。 |
 | REQ-05-13 | 矩阵任务必须显式声明所需前置状态标签（如 `[logged_in, map_a, level_gte_10]`），并引用 `preconditions.yaml` 中对应的已验证前置路径；无匹配前置路径时任务标记为 `blocked` 并写入 unknowns。 |
-| REQ-05-14 | 矩阵生成时必须查询 `openqa/knowledge/` 中的接口知识（事件、RPC、命令、状态字段），用于推断断言方式、前置设置方法和证据采集策略；接口知识为 `inferred` 状态时只能生成候选，不得直接用于执行矩阵。 |
+| REQ-05-14 | 矩阵生成时必须查询 `openguard/knowledge/` 中的接口知识（事件、RPC、命令、状态字段），用于推断断言方式、前置设置方法和证据采集策略；接口知识为 `inferred` 状态时只能生成候选，不得直接用于执行矩阵。 |
 
 
 

@@ -2,7 +2,7 @@
 
 ## 目标
 
-OpenQA 必须通过可验证经验沉淀，让项目越用越聪明，而不是依赖工具内部隐藏推理。知识库包含两大类：**测试执行经验**（由执行报告驱动沉淀）和**项目接口知识**（由代码扫描驱动建立）。
+OpenGuard 必须通过可验证经验沉淀，让项目越用越聪明，而不是依赖工具内部隐藏推理。知识库包含两大类：**测试执行经验**（由执行报告驱动沉淀）和**项目接口知识**（由代码扫描驱动建立）。
 
 ## 进化闭环
 
@@ -14,7 +14,7 @@ Review 发现 + 执行证据 → Agent 归因 → overlay 合并 → 多轮验�
 ## 知识分层
 
 ```text
-openqa/knowledge/
+openguard/knowledge/
   # 项目画像与运行环境
   project_profile.yaml     # 项目结构、宿主形态、技术栈、运行方式
   control_channels.yaml    # RPC、bridge、输入通道、入口点（含运行时验证状态）
@@ -48,8 +48,8 @@ openqa/knowledge/
 | REQ-09-05 | 多次重跑结果可沉淀 flaky 规则、等待策略和容差策略。 |
 | REQ-09-06 | 需求和代码变更历史可沉淀高风险模块、接口和测试影响规律。 |
 | REQ-09-07 | 单次模型输出不得直接晋升为长期知识。 |
-| REQ-09-08 | `openqa init` 生成的项目测试画像可作为 `project_profile.yaml` 的初始来源，但只有经过执行或人工确认的运行、控制和断言经验才能晋升为长期知识。 |
-| REQ-09-09 | 测试脚本必须经过至少一次真实执行验证后，才能晋升到 `openqa/test_assets/`；单次模型生成的草稿不得直接晋升。 |
+| REQ-09-08 | `openguard init` 生成的项目测试画像可作为 `project_profile.yaml` 的初始来源，但只有经过执行或人工确认的运行、控制和断言经验才能晋升为长期知识。 |
+| REQ-09-09 | 测试脚本必须经过至少一次真实执行验证后，才能晋升到 `openguard/test_assets/`；单次模型生成的草稿不得直接晋升。 |
 | REQ-09-10 | 晋升到 `test_assets/` 的脚本必须持续跟踪锚点有效性；绑定符号哈希变化时降为 `needs-review`，符号消失或需求变更时降为 `stale`，断裂无法映射时降为 `broken`。 |
 | REQ-09-11 | 脚本出现 flaky 时不得晋升；已晋升脚本出现 flaky 时降为 `needs-review` 并进入 flaky 治理流程，不得直接当 PASS。 |
 | REQ-09-12 | 脚本状态降级不得影响正在运行的 change；降级结果应在下一次 `continue` / `apply` 前的新鲜度校验中体现。 |
@@ -57,7 +57,7 @@ openqa/knowledge/
 | REQ-09-14 | `knowledge-scan` 提取的游戏接口知识必须绑定代码锚点，代码变更时降级触发规则见 `REQ_04_SCAN_AND_IMPACT.md`（REQ-04-11）。 |
 | REQ-09-15 | 知识条目状态降级后，Agent 可通过分析 `delta.json` 判断变更是"纯重构（接口不变）"还是"行为变更"；若是纯重构，可生成 overlay 更新锚点哈希待确认；若是行为变更，生成"需要重新验证"的提示。 |
 | REQ-09-16 | 前置路径（`preconditions.yaml`）必须经过至少一次真实执行验证后才能沉淀；沉淀后按"所需状态标签"（如 `logged_in`、`map_a`、`level_10`）索引，供后续 change 直接查找复用。 |
-| REQ-09-17 | `openqa new` 时必须查询 `preconditions.yaml`，为当前 change 的前置需求匹配已有路径；无匹配时写入 `unknowns.md`，并提示需要补充或建立新的前置路径。 |
+| REQ-09-17 | `openguard new` 时必须查询 `preconditions.yaml`，为当前 change 的前置需求匹配已有路径；无匹配时写入 `unknowns.md`，并提示需要补充或建立新的前置路径。 |
 
 ## 知识条目要求
 

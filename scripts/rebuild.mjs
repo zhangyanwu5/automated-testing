@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * rebuild.mjs — 重新打包 + 重新安装 OpenQA（本地开发用，跨平台）
+ * rebuild.mjs — 重新打包 + 重新安装 OpenGuard（本地开发用，跨平台）
  *
  * 用法（任意平台）：
  *   node scripts/rebuild.mjs           # pip + npm link（快速，日常开发）
@@ -50,7 +50,7 @@ function npmCmd(cmd) {
   return IS_WIN ? `${cmd}.cmd` : cmd;
 }
 
-// Windows 上 npm/pnpm/openqa 均为批处理 .cmd 或 shim，必须通过 shell 执行
+// Windows 上 npm/pnpm/openguard 均为批处理 .cmd 或 shim，必须通过 shell 执行
 // 参数为硬编码常量（非用户输入），安全无虞
 // Node 25 中 shell:true + 数组参数会有 DEP0190 警告，改用字符串拼接规避
 function run(cmd, args, opts = {}) {
@@ -195,11 +195,11 @@ if (PACK) {
 
 // ── Step 3: 验证 ─────────────────────────────────────────────────────────────
 step('Verifying');
-const verResult = runCapture('openqa', ['--version']);
+const verResult = runCapture('openguard', ['--version']);
 if (verResult.status === 0) {
-  ok(`openqa is available: ${(verResult.stdout + verResult.stderr).trim()}`);
+  ok(`openguard is available: ${(verResult.stdout + verResult.stderr).trim()}`);
 } else {
-  fail('openqa command not found after install.');
+  fail('openguard command not found after install.');
   info('Make sure npm global bin directory is in PATH.');
   info('Run: npm config get prefix');
   process.exit(1);
@@ -208,4 +208,4 @@ if (verResult.status === 0) {
 // ── 完成 ──────────────────────────────────────────────────────────────────────
 console.log('\n' + c.green(c.bold('Rebuild complete!')));
 console.log('  cd your-project');
-console.log('  openqa init');
+console.log('  openguard init');

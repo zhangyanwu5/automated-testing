@@ -2,7 +2,7 @@
 
 ## 目标
 
-OpenQA 必须对受影响代码做结构化 Review，输出标准化 findings 与可读摘要，并将 Review 结果纳入测试影响面和质量门禁。
+OpenGuard 必须对受影响代码做结构化 Review，输出标准化 findings 与可读摘要，并将 Review 结果纳入测试影响面和质量门禁。
 
 ## Review 策略
 
